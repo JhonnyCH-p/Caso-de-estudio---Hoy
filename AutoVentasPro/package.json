@@ -13,6 +13,7 @@
     "test:entity-plan": "tsx tests/test-plan-entity.ts",
     "test:repository-plan": "tsx tests/test-plan-repository.ts",
     "test:service-plan": "tsx tests/test-plan-service.ts",
+    "test:asesor": "tsx tests/test-asesor.js",
     "test": "npm run test:entity && npm run test:repository && npm run test:service"
   },
   "devDependencies": {
