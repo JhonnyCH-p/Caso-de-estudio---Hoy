@@ -1,4 +1,4 @@
-import type { UsuarioRepository } from './usuario.repository.js';
+import type { UsuarioRepository } from '../repositories/usuario.repository.js';
 import { Usuario, type DatosUsuario } from './usuario.entity.js';
 
 export class UsuarioInMemoryRepository implements UsuarioRepository {
