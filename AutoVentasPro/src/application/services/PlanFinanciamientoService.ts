@@ -2,8 +2,7 @@ import { PlanFinanciamiento } from '../../domain/entities/PlanFinanciamiento.js'
 import { IPlanFinanciamientoRepository } from '../../domain/repositories/IPlanFinanciamientoRepository.js';
 import { PlanFinanciamientoRequest } from '../dtos/requests/PlanFinanciamientoRequest.js';
 import { PlanFinanciamientoResponse } from '../dtos/responses/PlanFinanciamientoResponse.js';
-import { validatePlanRequest } from '../validations/planValidations.js';
-import { generateId } from '../validations/idGenerator.js';
+
 
 export class PlanFinanciamientoService {
   constructor(private repo: IPlanFinanciamientoRepository) {}
@@ -74,4 +73,18 @@ export class PlanFinanciamientoService {
       fechaCreacion: plan.fechaCreacion
     };
   }
+}
+export function generateId(prefix: string): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 6);
+  return `${prefix}-${timestamp}-${random}`;
+}
+
+export function validatePlanRequest(data: PlanFinanciamientoRequest): void {
+  if (!data.nombre?.trim()) throw new Error('Nombre obligatorio');
+  if (data.entradaMinima < 0 || data.entradaMinima > 100) throw new Error('Entrada mínima debe ser 0-100');
+  if (data.tasaInteresAnual < 0) throw new Error('Tasa debe ser >= 0');
+  if (!data.plazosDisponibles?.length) throw new Error('Debe haber al menos un plazo');
+  if (data.plazosDisponibles.some(p => p <= 0)) throw new Error('Plazos deben ser positivos');
+  if (data.comision < 0) throw new Error('Comisión debe ser >= 0');
 }
