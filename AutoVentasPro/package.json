@@ -7,9 +7,12 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "test:entity": "tsx tests/test-plan-entity.ts",
-    "test:repository": "tsx tests/test-plan-repository.ts",
-    "test:service": "tsx tests/test-plan-service.ts",
+    "test:entity-usuario": "tsx tests/test-usuario-entity.ts",
+    "test:repository-usuario": "tsx tests/test-usuario-repository.ts",
+    "test:service-usuario": "tsx tests/test-usuario-service.ts",
+    "test:entity-plan": "tsx tests/test-plan-entity.ts",
+    "test:repository-plan": "tsx tests/test-plan-repository.ts",
+    "test:service-plan": "tsx tests/test-plan-service.ts",
     "test": "npm run test:entity && npm run test:repository && npm run test:service"
   },
   "devDependencies": {
