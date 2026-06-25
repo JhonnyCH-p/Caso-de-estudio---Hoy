@@ -19,7 +19,6 @@
     "test:asesor": "tsx tests/test-asesor.js",
     "test": "npm run test:entity && npm run test:repository && npm run test:service"
   },
-  
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.5",
