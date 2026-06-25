@@ -1,4 +1,31 @@
 {
+<<<<<<< HEAD
+=======
+  "name": "auto-ventas-pro",
+  "version": "1.0.0",
+  "description": "Módulo PlanFinanciamiento - Arquitectura Hexagonal",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/server.ts",
+    "test:entity-usuario": "tsx tests/test-usuario-entity.ts",
+    "test:repository-usuario": "tsx tests/test-usuario-repository.ts",
+    "test:service-usuario": "tsx tests/test-usuario-service.ts",
+    "test:entity-plan": "tsx tests/test-plan-entity.ts",
+    "test:repository-plan": "tsx tests/test-plan-repository.ts",
+    "test:service-plan": "tsx tests/test-plan-service.ts",
+    "test:asesor": "tsx tests/test-asesor.js",
+    "test": "npm run test:entity && npm run test:repository && npm run test:service"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
+    "typescript": "^5.3.3"
+  },
+>>>>>>> 4ed7cb894d1e16bab5849a7311891ae8f4d4506d
   "dependencies": {
     "express": "^5.2.1"
   }
