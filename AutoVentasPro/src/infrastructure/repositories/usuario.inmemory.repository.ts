@@ -1,5 +1,5 @@
-import type { UsuarioRepository } from './usuario.repository.js';
-import { Usuario, type DatosUsuario } from './usuario.entity.js';
+import type { UsuarioRepository } from '../../domain/repositories/usuario.repository';
+import { Usuario, type DatosUsuario } from '../../domain/entities/usuario.entity';
 
 export class UsuarioInMemoryRepository implements UsuarioRepository {
     private usuarios: Map<string, DatosUsuario> = new Map();
