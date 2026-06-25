@@ -1,6 +1,6 @@
 // src/test-vehiculo-repository.ts
-import { VehiculoInMemoryRepository } from './infrastructure/repositories/VehiculoRepositorylmpl.js';
-import { Vehiculo } from './domain/entities/Vehiculo.js';
+import { VehiculoInMemoryRepository } from '../src/infrastructure/repositories/VehiculoRepositoryImpl.js';
+import { Vehiculo } from '../src/domain/entities/Vehiculo.js';
 
 (async () => {
   console.log('🧪 PROBANDO REPOSITORIO VEHICULO (MEMORIA)');

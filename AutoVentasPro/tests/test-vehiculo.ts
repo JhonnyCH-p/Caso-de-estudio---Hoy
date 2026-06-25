@@ -1,5 +1,5 @@
 // src/test-vehiculo.ts
-import { Vehiculo } from './domain/entities/Vehiculo.js';
+import { Vehiculo } from '../src/domain/entities/Vehiculo.js';
 
 console.log('🧪 PROBANDO ENTIDAD VEHICULO');
 console.log('============================\n');

@@ -1,6 +1,6 @@
 // src/test-vehiculo-service.ts
-import { VehiculoService } from './application/services/VehiculoService.js';
-import { VehiculoInMemoryRepository } from './infrastructure/repositories/VehiculoRepositorylmpl.js';
+import { VehiculoService } from '../src/application/services/VehiculoService.js';
+import { VehiculoInMemoryRepository } from '../src/infrastructure/repositories/VehiculoRepositoryImpl.js';
 
 (async () => {
   console.log('🧪 PROBANDO SERVICIO VEHICULO');
