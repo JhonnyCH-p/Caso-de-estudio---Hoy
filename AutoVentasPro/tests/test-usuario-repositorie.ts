@@ -1,4 +1,5 @@
-import { Usuario } from './domain/entities/usuario.entity.js';
+import { Usuario } from '../src/domain/entities/usuario.entity';
+
 
 console.log('🧪 PROBANDO ENTIDAD USUARIO');
 console.log('============================\n');

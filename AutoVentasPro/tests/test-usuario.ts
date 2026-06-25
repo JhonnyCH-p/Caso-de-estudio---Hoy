@@ -1,4 +1,5 @@
-import { UsuarioInMemoryRepository } from './domain/entities/usuario.inmemory.repository.js';
+import { UsuarioInMemoryRepository } from '../src/infrastructure/repositories/usuario.inmemory.repository';
+
 
 // Al final del archivo, después de las otras pruebas:
 
