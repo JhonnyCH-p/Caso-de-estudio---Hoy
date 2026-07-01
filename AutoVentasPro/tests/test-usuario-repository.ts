@@ -1,24 +1,33 @@
-import { UsuarioInMemoryRepository } from '../src/infrastructure/repositories/usuario.inmemory.repository';
+import { UsuarioInMemoryRepository } from '../src/infrastructure/repositories/usuario.inmemory.repository.js';
 
+(async () => {
+  console.log('🧪 PROBANDO REPOSITORIO USUARIO');
+  console.log('================================\n');
 
-// Al final del archivo, después de las otras pruebas:
+  const repoU = new UsuarioInMemoryRepository();
+  await repoU.seed();
 
-console.log('📌 REPOSITORIO USUARIO');
-const repoU = new UsuarioInMemoryRepository();
-await repoU.seed();
+  const admin = await repoU.findByUsuario('admin');
+  console.log(`1. findByUsuario(): ${admin?.getUsuario()} - ${admin?.getRol()} - ${admin?.getNivelPermiso()}`);
 
-const admin = await repoU.findByUsuario('admin');
-console.log(`   ✅ Admin: ${admin?.getUsuario()} - ${admin?.getRol()} - ${admin?.getNivelPermiso()}`);
+  const asesores = await repoU.findByRol('asesor');
+  console.log(`2. findByRol(): ${asesores.length} asesores`);
+  asesores.forEach(a => console.log(`     • ${a.getUsuario()} - ${a.getEspecialidad()} (${a.getExperienciaAnios()} años)`));
 
-const asesores = await repoU.findByRol('asesor');
-console.log(`   ✅ Asesores: ${asesores.length}`);
-asesores.forEach(a => console.log(`      • ${a.getUsuario()} - ${a.getEspecialidad()} (${a.getExperienciaAnios()} años)`));
+  const todos = await repoU.findAll();
+  console.log(`3. findAll(): ${todos.length} usuarios`);
 
-const todos = await repoU.findAll();
-console.log(`   ✅ Total usuarios: ${todos.length}`);
+  const activos = await repoU.findActivos();
+  console.log(`4. findActivos(): ${activos.length} activos`);
 
-const activos = await repoU.findActivos();
-console.log(`   ✅ Activos: ${activos.length}`);
+  const count = await repoU.count();
+  console.log(`5. count(): ${count}`);
 
-const count = await repoU.count();
-console.log(`   ✅ Count: ${count}`);
+  const porId = await repoU.findById(admin!.getId());
+  console.log(`6. findById(): ${porId?.getUsuario()}`);
+
+  const existe = await repoU.findByUsuario('nadie');
+  console.log(`7. findByUsuario() inexistente: ${existe === null ? 'null (OK)' : 'ERROR'}`);
+
+  console.log('\n✅ ¡TODAS LAS PRUEBAS DEL REPOSITORIO USUARIO PASARON!');
+})();

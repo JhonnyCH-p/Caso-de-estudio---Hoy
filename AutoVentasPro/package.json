@@ -17,7 +17,9 @@
     "test:repository-plan": "tsx tests/test-plan-repository.ts",
     "test:service-plan": "tsx tests/test-plan-service.ts",
     "test:asesor": "tsx tests/test-asesor.js",
-    "test": "npm run test:entity && npm run test:repository && npm run test:service"
+    "test:usuario": "tsx tests/test-usuario-entity.ts && tsx tests/test-usuario-repository.ts && tsx tests/test-usuario-service.ts",
+    "test:all": "npm run test:entity-usuario && npm run test:repository-usuario && npm run test:service-usuario && npm run test:entity-plan && npm run test:repository-plan && npm run test:service-plan",
+    "test": "npm run test:entity-usuario && npm run test:repository-usuario && npm run test:service-usuario"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
