@@ -4,13 +4,19 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
-    "rootDir": "AutoVentasPro/src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["AutoVentasPro/src/**/*", "AutoVentasPro/tests/test-plan-entity.ts", "AutoVentasPro/tests/test-plan-repository.ts", "AutoVentasPro/tests/test-plan-service.ts", "AutoVentasPro/tests/test-plan-entity.ts", "AutoVentasPro/tests/test-plan-repository.ts", "AutoVentasPro/tests/test-plan-service.ts"],
-  "exclude": ["node_modules", "dist", "AutoVentasPro/tests"]
+  "include": [
+    "src/**/*",
+    "tests/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
