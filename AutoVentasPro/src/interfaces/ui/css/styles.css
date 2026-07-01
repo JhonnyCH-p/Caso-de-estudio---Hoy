@@ -1,0 +1,294 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+/* LAYOUT */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 210px;
+    background: #1e293b;
+    border-right: 1px solid #334155;
+    padding: 1.25rem 0;
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 1rem 0.75rem;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 9px 1rem;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-family: sans-serif;
+    border-left: 2px solid transparent;
+    transition: background 0.12s;
+}
+
+.nav-btn:hover {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+.nav-btn.active {
+    color: #60a5fa;
+    background: #1e3a5f;
+    border-left-color: #3b82f6;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    min-width: 0;
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.badge-count {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* FORMULARIO */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.form-row input,
+.form-row select {
+    flex: 1;
+    min-width: 130px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
+    font-family: sans-serif;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #dbeafe;
+}
+
+/* BOTONES */
+.btn-save {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: sans-serif;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background: #1d4ed8;
+}
+
+.btn-del {
+    background: transparent;
+    border: 1px solid #fca5a5;
+    color: #ef4444;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.btn-del:hover {
+    background: #fee2e2;
+}
+
+/* TABLA */
+.table-wrap {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th {
+    background: #f1f5f9;
+    color: #64748b;
+    font-weight: 500;
+    text-align: left;
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: #f8fafc;
+}
+
+td.id-cell {
+    font-family: monospace;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+td.commission-cell {
+    font-family: monospace;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* BADGES - TIPO VEHÍCULO */
+.badge-tipo {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge-sedan {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-suv {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-hatch {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.badge-pickup {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.badge-dep {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* BADGES - ROL USUARIO */
+.badge-rol {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.rol-asesor {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.rol-jefe {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.rol-admin {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-activo {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* ESTADOS */
+.stock-ok {
+    color: #16a34a;
+}
+
+.stock-no {
+    color: #dc2626;
+}
+
+.empty-row td {
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    padding: 1.5rem;
+}

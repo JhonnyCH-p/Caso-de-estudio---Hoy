@@ -2,11 +2,11 @@
   console.log(" PROBANDO MÓDULO ASESOR - ARQUITECTURA HEXAGONAL");
   console.log("====================================================\n");
 
-  const { Asesor } = await import("./domain/entities/Asesor.js");
+  const { Asesor } = await import("../src/domain/entities/Asesor");
   const { AsesorRepositoryImpl } =
-    await import("./infrastructure/repositories/AsesorRepositoryImpl.js");
+    await import("../src/infrastructure/repositories/AsesorRepositoryImpl");
   const { AsesorService } =
-    await import("./application/services/AsesorService.js");
+    await import("../src/application/services/AsesorService");
 
   const repository = new AsesorRepositoryImpl();
   const service = new AsesorService(repository);

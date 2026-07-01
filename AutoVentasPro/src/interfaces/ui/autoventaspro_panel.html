@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoVentas Pro — Panel</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">AutoVentas Pro</div>
+    <nav>
+      <button class="nav-btn active" data-target="mod-vehiculo">
+        <i class="ti ti-car"></i> Vehículos
+      </button>
+      <button class="nav-btn" data-target="mod-asesor">
+        <i class="ti ti-user-circle"></i> Asesores
+      </button>
+      <button class="nav-btn" data-target="mod-plan">
+        <i class="ti ti-credit-card"></i> Planes
+      </button>
+      <button class="nav-btn" data-target="mod-usuario">
+        <i class="ti ti-shield-lock"></i> Usuarios
+      </button>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- MÓDULO: VEHÍCULOS -->
+    <section id="mod-vehiculo" class="section active">
+      <div class="section-header">
+        <h2>Vehículos</h2>
+        <span class="badge-count" id="count-vehiculo">1 registro</span>
+      </div>
+
+      <div class="form-row">
+        <input type="text"   id="v-marca"  placeholder="Marca (ej. Chevrolet)">
+        <input type="text"   id="v-modelo" placeholder="Modelo (ej. Onix)">
+        <input type="number" id="v-anio"   placeholder="Año" min="1900" max="2027">
+        <input type="number" id="v-precio" placeholder="Precio base ($)">
+        <select id="v-tipo">
+          <option value="">Tipo...</option>
+          <option value="SEDAN">SEDAN</option>
+          <option value="SUV">SUV</option>
+          <option value="HATCHBACK">HATCHBACK</option>
+          <option value="PICKUP">PICKUP</option>
+          <option value="DEPORTIVO">DEPORTIVO</option>
+        </select>
+        <input type="number" id="v-stock"  placeholder="Stock" min="0">
+        <button class="btn-save" onclick="addVehiculo()">Guardar</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Marca</th><th>Modelo</th><th>Año</th>
+              <th>Precio base</th><th>Tipo</th><th>Stock</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-vehiculo">
+            <tr data-id="VEH-001">
+              <td class="id-cell">VEH-001</td>
+              <td>Chevrolet</td>
+              <td>Onix</td>
+              <td>2024</td>
+              <td>$18,900</td>
+              <td><span class="badge-tipo badge-sedan">SEDAN</span></td>
+              <td class="stock-ok">5</td>
+              <td><button class="btn-del" onclick="delRow(this,'vehiculo')">Eliminar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: ASESORES -->
+    <section id="mod-asesor" class="section">
+      <div class="section-header">
+        <h2>Asesores</h2>
+        <span class="badge-count" id="count-asesor">0 registros</span>
+      </div>
+
+      <div class="form-row">
+        <input type="text"   id="a-esp"  placeholder="Especialidad (mín. 3 chars)">
+        <input type="number" id="a-exp"  placeholder="Experiencia (años)" min="0" max="60">
+        <input type="number" id="a-meta" placeholder="Meta mensual ($)" min="1">
+        <button class="btn-save" onclick="addAsesor()">Guardar</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Especialidad</th><th>Experiencia</th>
+              <th>Meta mensual</th><th>Comisión (base)</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-asesor">
+            <tr class="empty-row"><td colspan="6">Sin asesores registrados</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: PLANES DE FINANCIAMIENTO -->
+    <section id="mod-plan" class="section">
+      <div class="section-header">
+        <h2>Planes de financiamiento</h2>
+        <span class="badge-count" id="count-plan">0 registros</span>
+      </div>
+
+      <div class="form-row">
+        <input type="text"   id="p-nombre"   placeholder="Nombre del plan">
+        <input type="number" id="p-entrada"  placeholder="Entrada mínima (%)" min="0" max="100" step="0.1">
+        <input type="number" id="p-tasa"     placeholder="Tasa interés anual (%)" step="0.01">
+        <input type="text"   id="p-plazos"   placeholder="Plazos (ej. 12,24,36)">
+        <input type="number" id="p-comision" placeholder="Comisión (%)" step="0.1">
+        <button class="btn-save" onclick="addPlan()">Guardar</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Nombre</th><th>Entrada mín.</th><th>Tasa anual</th>
+              <th>Plazos (meses)</th><th>Comisión</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-plan">
+            <tr class="empty-row"><td colspan="8">Sin planes registrados</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: USUARIOS -->
+    <section id="mod-usuario" class="section">
+      <div class="section-header">
+        <h2>Usuarios</h2>
+        <span class="badge-count" id="count-usuario">0 registros</span>
+      </div>
+
+      <div class="form-row">
+        <input type="text"     id="u-nombre" placeholder="Usuario (mín. 4 chars)">
+        <input type="password" id="u-pass"   placeholder="Contraseña (mín. 6 chars)">
+        <select id="u-rol">
+          <option value="">Rol...</option>
+          <option value="asesor">Asesor</option>
+          <option value="jefe_ventas">Jefe de ventas</option>
+          <option value="administrador">Administrador</option>
+        </select>
+        <input type="text" id="u-area" placeholder="Área responsable (opcional)">
+        <button class="btn-save" onclick="addUsuario()">Guardar</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Usuario</th><th>Rol</th><th>Área</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-usuario">
+            <tr class="empty-row"><td colspan="6">Sin usuarios registrados</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

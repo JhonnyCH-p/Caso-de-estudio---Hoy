@@ -4,6 +4,7 @@ export interface CreateAsesorRequest {
   metaMensual: number;
 }
 
+// 📁 src/application/dtos/requests/UpdateAsesorRequest.ts
 export interface UpdateAsesorRequest {
   especialidad?: string;
   experienciaAnios?: number;
