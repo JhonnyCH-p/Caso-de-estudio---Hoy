@@ -1,0 +1,1245 @@
+===== Guia-Fetch-Axios.pdf =====
+--- Pag 1 ---
+📚  Guía Didáctica: Fetch vs Axios -
+Comunicación con el Backend
+🎯  Objetivo de la Guía
+Vamos a aprender:
+1. Qué es FETCH (nativo de JavaScript)
+2. Qué es AXIOS (librería externa)
+3. Cuáles son las DIFERENCIAS entre ellos
+4. Por qué usar AXIOS en proyectos profesionales
+5. Cómo IMPLEMENTAR cada uno en tu proyecto
+🗺  El Problema: Comunicación con el Backend
+Backend (Node.js)
+Frontend (React)
+GET /api/employees
+JSON Response
+Componente
+EmployeeList
+Hook
+useEmployees
+Petición HTTP API REST
+/api/employees
+El reto: Necesitamos una forma de hacer peticiones HTTP desde React hacia el backend.
+--- Pag 2 ---
+📦  Opción 1: Fetch (Nativo de JavaScript)
+¿Qué es Fetch?
+FETCH es la API NATIVA de JavaScript para hacer peticiones HTTP.
+Está integrada en todos los navegadores modernos.
+NO necesita instalación.
+Sintaxis Básica
+// 📁  Ejemplo básico con fetch
+// GET - Obtener datos
+fetch('http://localhost:3000/api/employees')
+    .then(response => response.json())  // ← Convertir a JSON
+    .then(data => console.log(data))    // ← Usar los datos
+    .catch(error => console.error(error));
+// POST - Enviar datos
+fetch('http://localhost:3000/api/employees', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        cedula: '1234567890',
+        nombres: 'Ana García',
+        salario: 1500
+    })
+})
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+--- Pag 3 ---
+Fetch en tu Proyecto
+// 📁  src/api/employee.api.ts (con fetch)
+const API_URL = 'http://localhost:3000/api/employees';
+export const EmployeeAPI = {
+    // ✅  GET - Obtener todos los empleados
+    async getAll(): Promise<Employee[]> {
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data.data;
+    },
+    // ✅  POST - Crear empleado
+    async create(data: CreateEmployeeRequest): Promise<Employee> {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Error al crear empleado');
+        }
+        const result = await response.json();
+        return result.data;
+    },
+    // ✅  PUT - Actualizar empleado
+    async update(id: string, data: UpdateEmployeeRequest): Promise<Employee> {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+--- Pag 4 ---
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        const result = await response.json();
+        return result.data;
+    },
+    // ✅  DELETE - Eliminar empleado
+    async delete(id: string): Promise<void> {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+    },
+};
+Ventajas de Fetch
+✅  NO requiere instalación (es nativo)
+✅  Está disponible en todos los navegadores modernos
+✅  Promesas nativas (async/await)
+✅  Ligero (sin dependencias externas)
+Desventajas de Fetch
+❌  Verboso (mucho código para cosas simples)
+❌  No maneja errores automáticamente (hay que verificar response.ok)
+❌  No tiene interceptores
+❌  No tiene timeout nativo
+❌  No cancela peticiones automáticamente
+❌  CORS puede ser problemático
+--- Pag 5 ---
+📦  Opción 2: Axios (Librería Externa)
+¿Qué es Axios?
+AXIOS es una librería externa para hacer peticiones HTTP.
+Se instala con npm.
+Ofrece una API más SIMPLE y PODEROSA que fetch.
+Instalación
+npm install axios
+Sintaxis Básica
+// 📁  Ejemplo básico con axios
+import axios from 'axios';
+// GET - Obtener datos
+axios.get('http://localhost:3000/api/employees')
+    .then(response => console.log(response.data))  // ← data ya está parseada
+    .catch(error => console.error(error));
+// POST - Enviar datos
+axios.post('http://localhost:3000/api/employees', {
+    cedula: '1234567890',
+    nombres: 'Ana García',
+    salario: 1500
+})
+    .then(response => console.log(response.data))
+    .catch(error => console.error(error));
+--- Pag 6 ---
+Axios en tu Proyecto
+1. Cliente Configurado
+// 📁  src/api/client.ts
+import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const apiClient = axios.create({
+    baseURL: API_BASE_URL,      // ← URL base
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 10000,             // ← ¡TIME OUT NATIVO!
+});
+// ✅  Interceptor de REQUEST (log de peticiones)
+apiClient.interceptors.request.use((config) => {
+    console.log(`📡  ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+});
+// ✅  Interceptor de RESPONSE (log de respuestas + manejo de errores)
+apiClient.interceptors.response.use(
+    (response) => {
+        console.log(`✅  ${response.status} ${response.config.url}`);
+        return response;
+    },
+    (error) => {
+        console.error(`❌  Error: ${error.message}`);
+        return Promise.reject(error);
+    }
+);
+--- Pag 7 ---
+2. API con Axios
+// 📁  src/api/employee.api.ts (con axios)
+import { apiClient } from './client';
+import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '../types/employee.t
+const API_URL = '/api/employees';
+export const EmployeeAPI = {
+    // ✅  GET - Obtener todos
+    async getAll(): Promise<Employee[]> {
+        const response = await apiClient.get<{ data: Employee[] }>(API_URL);
+        return response.data.data;
+    },
+    // ✅  POST - Crear
+    async create(data: CreateEmployeeRequest): Promise<Employee> {
+        const response = await apiClient.post<{ data: Employee }>(API_URL, data);
+        return response.data.data;
+    },
+    // ✅  PUT - Actualizar
+    async update(id: string, data: UpdateEmployeeRequest): Promise<Employee> {
+        const response = await apiClient.put<{ data: Employee }>(
+            `${API_URL}/${id}`,
+            data
+        );
+        return response.data.data;
+    },
+    // ✅  DELETE - Eliminar
+    async delete(id: string): Promise<void> {
+        await apiClient.delete(`${API_URL}/${id}`);
+    },
+    // ✅  PATCH - Aumentar salario
+    async increaseSalary(id: string, percentage: number): Promise<Employee> {
+        const response = await apiClient.patch<{ data: Employee }>(
+            `${API_URL}/${id}/salary`,
+            { percentage }
+        );
+        return response.data.data;
+--- Pag 8 ---
+    },
+};
+Ventajas de Axios
+✅  Código más LIMPIO y LEGIBLE
+✅  Manejo de errores AUTOMÁTICO
+✅  INTERCEPTORES (request/response)
+✅  TIME OUT nativo
+✅  Cancelación de peticiones
+✅  Transformación de datos automática
+✅  Soporte para progreso de descarga/subida
+✅  Funciona en Node.js y navegador
+Desventajas de Axios
+❌  REQUIERE instalación (dependencia externa)
+❌  Aumenta el tamaño del bundle
+❌  Curva de aprendizaje (aunque es pequeña)
+--- Pag 9 ---
+📊  Comparativa Detallada: Fetch vs Axios
+🔴  AXIOS (Librería)
+❌  Requiere instalación
+✅  Código limpio
+✅  Interceptores
+✅  Timeout nativo
+✅  Cancelación automática
+✅  JSON parseado 
+automático
+🔵  FETCH (Nativo)
+✅  Nativo - sin instalación
+❌  Verboso
+❌  No tiene interceptores
+❌  No tiene timeout nativo
+❌  No cancela peticiones
+❌  Hay que parsear JSON 
+manualmente
+Tabla Comparativa
+Característica Fetch Axios
+Instalación ✅  Nativo ❌   npm install axios 
+Sintaxis ❌  Verbosa ✅  Limpia
+JSON parsing ❌  Manual ( response.json() ) ✅  Automático ( response.data )
+--- Pag 10 ---
+Característica Fetch Axios
+Errores HTTP ❌  No lanza error en 4xx/5xx✅  Lanza error automáticamente
+Interceptores ❌  No tiene ✅  Sí tiene
+Timeout ❌  No tiene nativo ✅  Sí tiene ( timeout: 10000 )
+Cancelación ❌  Compleja (AbortController)✅  Simple ( CancelToken )
+Progreso ❌  No tiene ✅  Sí tiene ( onUploadProgress )
+Transformación ❌  Manual ✅  Automática ( transformRequest )
+Base URL ❌  Manual ✅  Sí ( baseURL )
+Headers globales❌  Manual ✅  Sí (en  defaults )
+Bundle size ✅  0 KB ❌  ~8 KB (gzip)
+--- Pag 11 ---
+🧪  Ejemplo Comparativo: GET /api/employees
+Con Fetch
+// 📁  Con Fetch
+async function getEmployees() {
+    try {
+        const response = await fetch('http://localhost:3000/api/employees');
+        
+        // ❌  Hay que verificar el error manualmente
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // ❌  Hay que parsear JSON manualmente
+        const data = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+Con Axios
+// 📁  Con Axios
+async function getEmployees() {
+    try {
+        // ✅  Error lanzado automáticamente en 4xx/5xx
+        // ✅  JSON parseado automáticamente
+        const response = await apiClient.get('/api/employees');
+        return response.data.data;  // ← Ya está parseado
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+--- Pag 12 ---
+🔥  Lo que Axios Hace por Ti
+(Automáticamente)
+Axios lo hace automático
+✅  Parsear JSON✅  Manejar errores HTTP✅  Añadir headers✅  Timeout ✅  Logging con interceptores✅  Base URL
+Fetch vs Axios: Código Necesario
+Acción Fetch Axios
+Configurar base URL fetch(url)  (siempre completa) baseURL  en  axios.create() 
+Headers por defectoCada petición  headers  en  axios.create() 
+Parsear JSON  response.json() ✅  Automático
+Manejar error 404  if (!response.ok) ✅  Automático (catch)
+Timeout Manual con AbortController  timeout: 10000 
+Logging Manual Interceptores
+🎯  ¿Cuál Usar en tu Proyecto?
+Usa FETCH si...
+✅  Es un proyecto pequeño o prototipo
+✅  No quieres dependencias externas
+✅  Estás aprendiendo y quieres entender lo nativo
+✅  Solo necesitas hacer GET/POST simples
+--- Pag 13 ---
+Usa AXIOS si...
+✅  Es un proyecto profesional/empresarial
+✅  Necesitas interceptores (autenticación, logging)
+✅  Necesitas timeout para peticiones lentas
+✅  Quieres código más limpio y mantenible
+✅  Necesitas cancelar peticiones
+✅  Quieres manejar errores de forma consistente
+Recomendación para tu Proyecto
+📌  RECOMENDACIÓN: USA AXIOS
+Tu proyecto ya usa axios (lo vimos en los archivos).
+Es la opción preferida en la industria para proyectos profesionales.
+BENEFICIOS EN TU PROYECTO:
+🔹  Interceptores: logging automático de peticiones
+🔹  Timeout: 10 segundos de espera
+🔹  Base URL: configurada en .env
+🔹  Manejo de errores: centralizado
+🔹  Código limpio: EmployeeAPI con axios
+--- Pag 14 ---
+📋  Resumen Final
+┌─────────────────────────────────────────────────────────────────┐
+│                    FETCH VS AXIOS                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  🔵  FETCH:                                                      │
+│     ✅  Nativo, sin instalación                                 │
+│     ❌  Verboso, mucho código boilerplate                       │
+│     ❌  No tiene interceptores                                  │
+│     ❌  No tiene timeout nativo                                 │
+│                                                                 │
+│  🔴  AXIOS:                                                      │
+│     ❌  Requiere instalación                                    │
+│     ✅  Código limpio y legible                                 │
+│     ✅  Interceptores                                           │
+│     ✅  Timeout nativo                                          │
+│     ✅  Cancelación de peticiones                               │
+│     ✅  JSON parseado automático                                │
+│                                                                 │
+│  🎯  RECOMENDACIÓN:                                              │
+│     Usa AXIOS en proyectos profesionales                        │
+│     Usa FETCH para prototipos o aprendizaje                     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+--- Pag 15 ---
+🎓  Preguntas de Reflexión
+1. ¿Por qué axios es más popular que fetch en proyectos grandes?
+   → Porque ofrece interceptores, timeout, mejor manejo de errores.
+2. ¿Qué son los interceptores y por qué son útiles?
+   → Son funciones que se ejecutan antes/después de cada petición.
+   → Útiles para: autenticación, logging, manejo global de errores.
+3. ¿Por qué el timeout es importante?
+   → Para evitar que la aplicación se quede "colgada" esperando una respuesta.
+4. ¿Qué pasaría si usas fetch en un proyecto grande?
+   → Tendrías que escribir mucho código repetitivo para:
+      - Manejar errores
+      - Parsear JSON
+      - Configurar headers
+      - Timeout
+
+===== Crud-ListarEmpleados.pdf =====
+--- Pag 1 ---
+📚  Guía Didáctica: Crear la Consulta
+de Empleados - Paso a Paso
+🎯  Objetivo de la Guía
+Vamos a construir la funcionalidad de "LISTAR EMPLEADOS" paso a paso:
+1. Definir los TIPOS (modelo de datos)
+2. Crear el CLIENTE HTTP (conexión con el backend)
+3. Crear los ENDPOINTS (peticiones a la API)
+4. Crear el HOOK PERSONALIZADO (lógica de negocio)
+5. Crear el COMPONENTE LISTA (vista)
+6. Integrar en APP (padre)
+📋  Paso 0: ¿Qué necesitamos?
+📦  Tipos
+(Modelo)
+📡  API
+(Conexión)
+⚙  Hook
+(Lógica)
+🧩  Componente
+(Vista)
+🎯  App
+(Integración)
+--- Pag 2 ---
+🔧  Paso 1: Definir los Tipos (El Modelo)
+¿Por qué empezar aquí?
+LOS TIPOS SON EL "MOLDE" DE TUS DATOS
+🔹  Definen qué datos existen y de qué tipo son
+🔹  Son la base que usará el resto del código
+🔹  TypeScript los usa para evitar errores
+⚠  Si los tipos están mal, todo el código tendrá errores
+   Por eso es lo PRIMERO que debemos hacer.
+--- Pag 3 ---
+Archivo a crear:  src/types/employee.types.ts 
+Tipos de Empleado
+Employee
+━━━━━━━━━━━━━━
+• id: string
+• cedula: string
+• nombres: string
+• salario: number
+• departamento: string
+• activo: boolean
+• createdAt: string
+• updatedAt: string
+EmployeeListResponse
+━━━━━━━━━━━━━━
+• count: number
+• data: Employee[]
+EmployeeFormState
+━━━━━━━━━━━━━━
+• cedula: string
+• nombres: string
+• salario: string
+• departamento: string
+• activo: boolean
+--- Pag 4 ---
+Explicación de cada tipo:
+Tipo Propósito ¿Dónde se usa?
+Employee Datos de un empleado (respuesta del
+backend)
+Componentes,
+Hooks
+EmployeeListResponseRespuesta del backend al listar API.getAll()
+EmployeeFormStateDatos del formulario (frontend) EmployeeForm
+Qué debe tener el archivo:
+// 📁  src/types/employee.types.ts
+// 1. Tipo Employee - El que viene del backend
+export interface Employee {
+    id: string;
+    cedula: string;
+    nombres: string;
+    salario: number;
+    departamento: string;
+    activo: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+// 2. Tipo EmployeeListResponse - Respuesta al listar
+export interface EmployeeListResponse {
+    count: number;
+    data: Employee[];
+}
+// 3. Tipo EmployeeFormState - Estado del formulario (frontend)
+export interface EmployeeFormState {
+    cedula: string;
+    nombres: string;
+    salario: string;   // ← string porque es un input
+    departamento: string;
+    activo: boolean;
+}
+--- Pag 5 ---
+✅  Verificación del Paso 1:
+# 1. Crear la carpeta types
+mkdir src/types
+# 2. Crear el archivo
+touch src/types/employee.types.ts
+# 3. Copiar el contenido de arriba
+# 4. Verificar que no hay errores
+npx tsc --noEmit
+🔌  Paso 2: Crear el Cliente HTTP
+¿Por qué necesitamos un cliente HTTP?
+AXIOS ES EL "MENSAJERO" DE TU APP
+🔹  Se encarga de comunicarse con el backend
+🔹  Hace las peticiones HTTP (GET, POST, PUT, DELETE)
+🔹  Maneja errores de red
+🔹  Configura headers y timeout
+📌  Sin Axios, no podemos conectar con el backend
+Archivo a crear:  src/api/client.ts 
+Cliente HTTP (Axios)
+baseURL━━━━━━━━━━http://localhost:3000
+headers━━━━━━━━━━Content-Type: application/json
+timeout━━━━━━━━━━10 segundos
+interceptors━━━━━━━━━━Logging de peticiones
+--- Pag 6 ---
+Qué debe tener el archivo:
+// 📁  src/api/client.ts
+import axios from 'axios';
+// URL del backend (desde .env o por defecto)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Crear el cliente Axios
+export const apiClient = axios.create({
+    baseURL: API_BASE_URL,      // ← Dirección del backend
+    headers: {
+        'Content-Type': 'application/json',  // ← Enviamos JSON
+    },
+    timeout: 10000,             // ← 10 segundos máximo de espera
+});
+// Interceptors: para ver qué peticiones hacemos (logging)
+apiClient.interceptors.request.use((config) => {
+    console.log(`📡  ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+});
+apiClient.interceptors.response.use(
+    (response) => {
+        console.log(`✅  ${response.status} ${response.config.url}`);
+        return response;
+    },
+    (error) => {
+        console.error(`❌  Error: ${error.message}`);
+        return Promise.reject(error);
+    }
+);
+--- Pag 7 ---
+✅  Verificación del Paso 2:
+# 1. Crear la carpeta api
+mkdir src/api
+# 2. Crear el archivo
+touch src/api/client.ts
+# 3. Instalar Axios si no está
+npm install axios
+# 4. Copiar el contenido de arriba
+# 5. Verificar
+npx tsc --noEmit
+📡  Paso 3: Crear los Endpoints
+¿Qué son los endpoints?
+ENDPOINTS = LAS "RUTAS" DE COMUNICACIÓN
+🔹  Cada endpoint es una función que hace una petición HTTP
+🔹  Define qué endpoint del backend llamar
+🔹  Envía los datos y recibe las respuestas
+🔹  Convierte la respuesta en un objeto tipado
+📌  Los endpoints son la "capa de traducción" entre tu frontend y el backend.
+--- Pag 8 ---
+Archivo a crear:  src/api/employee.api.ts 
+--- Pag 9 ---
+API de Empleados
+getAll()
+━━━━━━━━━━
+GET /api/employees
+→  Employee[]
+getById(id)
+━━━━━━━━━━
+GET /api/employees/:id
+→  Employee
+create(data)
+━━━━━━━━━━
+POST /api/employees
+→  Employee
+update(id, data)
+━━━━━━━━━━
+PUT /api/employees/:id
+→  Employee
+delete(id)
+━━━━━━━━━━
+DELETE 
+/api/employees/:id
+→  void
+--- Pag 10 ---
+Qué debe tener el archivo:
+// 📁  src/api/employee.api.ts
+import { apiClient } from './client';
+import type {
+    Employee,
+    EmployeeListResponse,
+} from '../types/employee.types';
+const API_URL = '/api/employees';
+export const EmployeeAPI = {
+    /**
+     * GET /api/employees
+     * Listar todos los empleados
+     */
+    async getAll(): Promise<Employee[]> {
+        // 1. Hacer la petición GET
+        const response = await apiClient.get<EmployeeListResponse>(API_URL);
+        
+        // 2. Extraer solo la lista de empleados (response.data.data)
+        //    porque la respuesta es: { count: 10, data: [...] }
+        return response.data.data;
+    },
+    /**
+     * GET /api/employees/:id
+     * Obtener un empleado por ID
+     */
+    async getById(id: string): Promise<Employee> {
+        const response = await apiClient.get<{ data: Employee }>(
+            `${API_URL}/${id}`
+        );
+        return response.data.data;
+    },
+};
+--- Pag 11 ---
+✅  Verificación del Paso 3:
+# 1. Crear el archivo
+touch src/api/employee.api.ts
+# 2. Copiar el contenido de arriba
+# 3. Verificar que los imports son correctos
+npx tsc --noEmit
+⚙  Paso 4: Crear el Hook Personalizado
+¿Qué es un hook personalizado?
+HOOK = LA "LÓGICA DE NEGOCIO" DE TU APP
+🔹  Contiene el estado de los datos
+🔹  Contiene las funciones para obtenerlos
+🔹  Se comunica con la API
+🔹  Provee los datos y funciones a los componentes
+📌  El hook es el "controlador" que conecta la vista con los datos.
+Archivo a crear:  src/hooks/useEmployees.ts 
+Hook useEmployees
+📦  Estado
+━━━━━━━━━━
+employees: Employee[]
+loading: boolean
+error: string | null
+📋  Operaciones
+━━━━━━━━━━
+fetchAll() →  void
+create() →  Employee
+update() →  Employee
+remove() →  boolean
+--- Pag 12 ---
+Qué debe tener el archivo (SOLO LISTAR):
+// 📁  src/hooks/useEmployees.ts
+import { useState, useEffect, useCallback } from 'react';
+import { EmployeeAPI } from '../api/employee.api';
+import type { Employee } from '../types/employee.types';
+/**
+ * Extrae un mensaje de error de forma segura
+ */
+function getErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null) {
+        const err = error as { response?: { data?: { error?: string; message?: string } } };
+        if (err.response?.data?.error) return err.response.data.error;
+        if (err.response?.data?.message) return err.response.data.message;
+    }
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    return 'Ocurrió un error inesperado';
+}
+/**
+ * Hook para gestionar empleados
+ */
+export function useEmployees() {
+    // ============================================
+    // ESTADO
+    // ============================================
+    const [employees, setEmployees] = useState<Employee[]>([]);  // ← Lista vacía al inicio
+    const [loading, setLoading] = useState<boolean>(true);      // ← Cargando al inicio
+    const [error, setError] = useState<string | null>(null);    // ← Sin error al inicio
+    // ============================================
+    // FUNCIÓN PARA OBTENER EMPLEADOS
+    // ============================================
+    const fetchAll = useCallback(async () => {
+        setLoading(true);          // ← Empezamos a cargar
+        setError(null);            // ← Limpiamos errores anteriores
+        try {
+            const data = await EmployeeAPI.getAll();  // ← Llamamos a la API
+            setEmployees(data);    // ← Guardamos los datos
+--- Pag 13 ---
+        } catch (err: unknown) {
+            const message = getErrorMessage(err);    // ← Extraemos el mensaje
+            setError(message);     // ← Guardamos el error
+            console.error('Error fetching employees:', err);
+        } finally {
+            setLoading(false);     // ← Terminamos de cargar (éxito o error)
+        }
+    }, []);
+    // ============================================
+    // CARGAR AUTOMÁTICAMENTE AL INICIO
+    // ============================================
+    useEffect(() => {
+        fetchAll();                // ← Cuando el componente se monta, carga los datos
+    }, []);                        // ← Dependencias vacías = solo una vez
+    // ============================================
+    // RETORNAR DATOS Y FUNCIONES
+    // ============================================
+    return {
+        employees,
+        loading,
+        error,
+        fetchAll,                  // ← Por si queremos recargar manualmente
+    };
+}
+✅  Verificación del Paso 4:
+# 1. Crear la carpeta hooks
+mkdir src/hooks
+# 2. Crear el archivo
+touch src/hooks/useEmployees.ts
+# 3. Copiar el contenido de arriba
+# 4. Verificar
+npx tsc --noEmit
+--- Pag 14 ---
+🧩  Paso 5: Crear el Componente Lista
+¿Qué es el componente lista?
+COMPONENTE LISTA = LA "VISTA" DE LOS DATOS
+🔹  Muestra los empleados en una tabla
+🔹  Muestra un spinner mientras carga
+🔹  Muestra un mensaje si hay error
+🔹  Muestra "No hay datos" si la lista está vacía
+📌  Es un componente "tonto": solo recibe props y las muestra.
+Archivo a crear:  src/components/EmployeeList.tsx 
+Componente EmployeeList
+Props
+━━━━━━━━━━
+employees: Employee[]
+loading: boolean
+error: string | null
+Estados de UI
+━━━━━━━━━━
+Cargando →  Spinner
+Error →  Mensaje rojo
+Vacío →  Mensaje
+Datos →  Tabla
+Diseño del Componente
+Estados del Componente
+Muestra Muestra Muestra Muestra
+Cargando Error Sin datos Con datos
+🔄  Spinner ❌  Mensaje de error 📭  No hay empleados📋  Tabla de empleados
+--- Pag 15 ---
+Qué debe tener el archivo:
+// 📁  src/components/EmployeeList.tsx
+import React from 'react';
+import type { Employee } from '../types/employee.types';
+// ============================================
+// PROPS QUE RECIBE
+// ============================================
+interface EmployeeListProps {
+    employees: Employee[];      // ← Lista de empleados
+    loading: boolean;           // ← ¿Está cargando?
+    error: string | null;       // ← ¿Hay error?
+}
+// ============================================
+// COMPONENTE
+// ============================================
+export const EmployeeList: React.FC<EmployeeListProps> = ({
+    employees,
+    loading,
+    error,
+}) => {
+    // ============================================
+    // CASO 1: CARGANDO
+    // ============================================
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600">
+            </div>
+        );
+    }
+    // ============================================
+    // CASO 2: ERROR
+    // ============================================
+    if (error) {
+        return (
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
+                ❌  Error: {error}
+            </div>
+--- Pag 16 ---
+        );
+    }
+    // ============================================
+    // CASO 3: SIN DATOS
+    // ============================================
+    if (employees.length === 0) {
+        return (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <p className="text-gray-500 text-lg">No hay empleados registrados</p>
+                <p className="text-gray-400 text-sm">
+                    Haz clic en "Nuevo Empleado" para agregar uno
+                </p>
+            </div>
+        );
+    }
+    // ============================================
+    // CASO 4: CON DATOS → TABLA
+    // ============================================
+    return (
+        <div className="overflow-x-auto shadow-md rounded-lg">
+            <table className="min-w-full bg-white">
+                {/* Cabecera */}
+                <thead className="bg-gray-100 border-b">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 upp
+                            #
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 upp
+                            Cédula
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 upp
+                            Nombres
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 upp
+                            Salario
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 upp
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+--- Pag 17 ---
+                {/* Cuerpo */}
+                <tbody className="divide-y divide-gray-200">
+                    {employees.map((employee, index) => (
+                        <tr key={employee.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {index + 1}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {employee.cedula}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-
+                                {employee.nombres}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${employee.salario.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold $
+                                    employee.activo
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-red-100 text-red-800'
+                                }`}>
+                                    {employee.activo ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+--- Pag 18 ---
+✅  Verificación del Paso 5:
+# 1. Crear la carpeta components
+mkdir src/components
+# 2. Crear el archivo
+touch src/components/EmployeeList.tsx
+# 3. Copiar el contenido de arriba
+# 4. Verificar
+npx tsc --noEmit
+🎯  Paso 6: Integrar en App (El Padre)
+¿Qué es App?
+APP = EL "ORQUESTADOR" DE LA APP
+🔹  Es el componente PADRE de todos
+🔹  Usa el hook para obtener los datos
+🔹  Pasa los datos al componente lista
+🔹  Controla el formulario y el modal
+📌  App coordina todo y conecta las piezas.
+--- Pag 19 ---
+Archivo a modificar:  src/App.tsx 
+Componente App (Padre)
+useEmployees()
+━━━━━━━━━━
+employees, loading, error
+EmployeeList
+━━━━━━━━━━
+employees={employees}
+loading={loading}
+error={error}
+--- Pag 20 ---
+Qué debe tener el archivo:
+// 📁  src/App.tsx
+import React from 'react';
+import { useEmployees } from './hooks/useEmployees';
+import { EmployeeList } from './components/EmployeeList';
+function App() {
+    // ============================================
+    // 1. OBTENER DATOS DEL HOOK
+    // ============================================
+    const {
+        employees,    // ← Lista de empleados
+        loading,      // ← ¿Está cargando?
+        error,        // ← ¿Hay error?
+    } = useEmployees();
+    // ============================================
+    // 2. RENDERIZAR
+    // ============================================
+    return (
+        <div className="min-h-screen bg-gray-50">
+            {/* Navbar */}
+            <nav className="bg-white shadow-sm border-b">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        👥  Gestión de Empleados
+                    </h1>
+                </div>
+            </nav>
+            {/* Contenido principal */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* ✅  Pasar datos al componente lista */}
+                <EmployeeList
+                    employees={employees}
+                    loading={loading}
+                    error={error}
+                />
+            </main>
+        </div>
+    );
+--- Pag 21 ---
+}
+export default App;
+✅  Verificación del Paso 6:
+# 1. Modificar src/App.tsx con el contenido de arriba
+# 2. Verificar que no hay errores
+npx tsc --noEmit
+# 3. Iniciar el proyecto
+npm run dev
+📊  Resumen Visual: Flujo de Datos
+PASOS PARA CONSULTAR EMPLEADOS
+1. App.tsx━━━━━━━━━━━━Llama a useEmployees()
+2. useEmployees━━━━━━━━━━━━Ejecuta useEffect →  fetchAll()
+3. EmployeeAPI━━━━━━━━━━━━getAll() →  petición GET
+4. Backend━━━━━━━━━━━━Devuelve lista de empleados
+5. useEmployees━━━━━━━━━━━━setEmployees(data)6. App.tsx━━━━━━━━━━━━Recibe employees7. EmployeeList━━━━━━━━━━━━Muestra los datos
+--- Pag 22 ---
+✅  Checklist de Verificación Final
+# 1. Verificar que todos los archivos existen
+ls src/types/employee.types.ts
+ls src/api/client.ts
+ls src/api/employee.api.ts
+ls src/hooks/useEmployees.ts
+ls src/components/EmployeeList.tsx
+ls src/App.tsx
+# 2. Verificar que no hay errores de TypeScript
+npx tsc --noEmit
+# 3. Verificar que el backend está corriendo
+curl http://localhost:3000/api/employees
+# 4. Iniciar el frontend
+npm run dev
+# 5. Abrir en el navegador
+# http://localhost:5173
+🎓  Preguntas de Reflexión
+1. ¿Por qué empezamos definiendo los tipos?
+   Respuesta: Porque son el "molde" de los datos y todo el código depende de ellos.
+2. ¿Por qué el hook se llama "useEmployees" y no "getEmployees"?
+   Respuesta: Porque use indica que es un hook de React (puede usar otros hooks como useState, u
+3. ¿Por qué EmployeeList no tiene lógica de negocio?
+   Respuesta: Para que sea reutilizable y fácil de probar. Solo recibe props y las muestra.
+4. ¿Por qué App es el que usa el hook y no EmployeeList?
+   Respuesta: Porque App es el padre que orquesta los datos. EmployeeList solo muestra.
+--- Pag 23 ---
+🎯  Resumen del Flujo
+┌─────────────────────────────────────────────────────────────────┐
+│                    FLUJO COMPLETO                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. App.tsx se monta                                            │
+│  2. useEmployees() se ejecuta                                   │
+│  3. useEffect() → fetchAll()                                    │
+│  4. EmployeeAPI.getAll() → Petición HTTP                        │
+│  5. Backend responde con datos                                  │
+│  6. setEmployees(data) → Actualiza el estado                    │
+│  7. React re-renderiza App                                      │
+│  8. App pasa datos a EmployeeList                               │
+│  9. EmployeeList muestra la tabla                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+===== Crud-General-ultima clase.pdf =====
+--- Pag 1 ---
+📚  Guía Didáctica: Estructura del
+Proyecto React - CRUD de
+Empleados
+🗺  Mapa de la Estructura
+PROYECTO REACT - CRUD EMPLEADOS 📋  CAPA DE TIPOS (Types)
+employee.types.ts(Interfaces)
+🧩  CAPA DE PRESENTACIÓN (UI)
+App.tsx(Orquestador)EmployeeList(Lista)EmployeeForm(Formulario)EmployeeModal(Modal)
+⚙  CAPA DE LÓGICA (Hooks)
+useEmployees(Estado + Operaciones)
+📡  CAPA DE DATOS (API)
+employee.api.ts(Endpoints)client.ts(Axios)
+📁  Estructura de Carpetas
+src/
+├── 📁  api/                    # → Comunicación con el backend
+│   ├── client.ts              #   Cliente HTTP (Axios configurado)
+│   └── employee.api.ts        #   Endpoints específicos de empleados
+│
+├── 📁  components/             # → Componentes de UI (Vista)
+│   ├── EmployeeList.tsx       #   Tabla de empleados
+│   ├── EmployeeForm.tsx       #   Formulario de creación/edición
+│   └── EmployeeModal.tsx      #   Ventana modal contenedora
+│
+├── 📁  hooks/                  # → Lógica de negocio (Controlador)
+│   └── useEmployees.ts        #   Estado + operaciones CRUD
+│
+├── 📁  types/                  # → Definiciones de tipos (Modelo)
+│   └── employee.types.ts      #   Interfaces de datos
+│
+├── App.tsx                    # → Componente principal (Orquestador)
+├── App.css                    # → Estilos globales (legacy)
+├── main.tsx                   # → Punto de entrada
+└── index.css                  # → Estilos globales + Tailwind
+--- Pag 2 ---
+🧩  1. Componentes (La Vista)
+¿Qué son?
+Los componentes son las piezas visuales de tu aplicación. Cada uno tiene una responsabilidad
+única y se encarga de mostrar información y capturar interacciones del usuario.
+¿Cuántos componentes tienes?
+Componente Responsabilidad ¿Qué muestra? ¿Qué recibe?
+App Orquestador
+principal
+Navbar + Lista +
+Modal Nada (es el padre)
+EmployeeList Lista de empleadosTabla con datos empleados, loading, error,
+callbacks
+EmployeeFormFormulario Campos de entradaformData, errors, callbacks
+EmployeeModalContenedor modalVentana emergenteisOpen, onClose, children,
+title
+¿Por qué separarlos así?
+BENEFICIOS DE COMPONENTIZAR:
+✅  REUTILIZABILIDAD: EmployeeForm puede usarse para crear y editar
+✅  MANTENIMIENTO: Cada componente es pequeño y fácil de modificar
+✅  PRUEBAS: Se pueden probar de forma aislada
+✅  ORGANIZACIÓN: Cada archivo tiene una sola responsabilidad
+✅  LEGIBILIDAD: El código es más fácil de entender
+--- Pag 3 ---
+Jerarquía de Componentes
+App
+EmployeeList EmployeeModal
+EmployeeForm
+Flujo de Datos entre Componentes
+App (Padre)
+├── Tiene: employees, loading, error
+├── Tiene: funciones handleCreate, handleEdit, handleDelete
+│
+├── Le pasa a EmployeeList (Hijo):
+│   ├── employees (datos)
+│   ├── loading (estado)
+│   ├── error (estado)
+│   ├── onEdit (función)
+│   ├── onDelete (función)
+│   └── onIncreaseSalary (función)
+│
+└── Le pasa a EmployeeModal (Hijo):
+    ├── isOpen (estado)
+    ├── onClose (función)
+    └── children (EmployeeForm)
+        └── Le pasa a EmployeeForm:
+            ├── formData (estado)
+            ├── errors (estado)
+            ├── isSubmitting (estado)
+            ├── onChange (función)
+            ├── onSubmit (función)
+            └── onCancel (función)
+--- Pag 4 ---
+🎯  2. Tipos (El Modelo)
+¿Qué son?
+Los tipos definen la forma de los datos que maneja tu aplicación. Son como el "molde" que asegura
+que los datos tengan la estructura correcta.
+Clasificación de Tipos
+TIPOS
+API TYPES
+(Backend)
+FRONTEND TYPES
+(Formularios)
+UTILITY TYPES
+(Utilidades)
+Tipos de API (Backend)
+Tipo Propósito ¿Dónde se usa?
+Employee Estructura de un empleado
+(respuesta del servidor)
+EmployeeList,
+EmployeeAPI
+CreateEmployeeRequestDatos para crear (lo que envías al
+servidor) EmployeeAPI.create()
+UpdateEmployeeRequestDatos para actualizar (lo que envías
+al servidor) EmployeeAPI.update()
+EmployeeListResponseRespuesta del servidor al listarEmployeeAPI.getAll()
+EmployeeStatsResponseRespuesta de estadísticas EmployeeAPI.getStats()
+Tipos de Frontend (Formularios)
+Tipo Propósito ¿Dónde se usa?
+EmployeeFormStateEstado del formulario (string para inputs
+controlados)
+App.tsx,
+EmployeeForm
+--- Pag 5 ---
+Tipo Propósito ¿Dónde se usa?
+EmployeeFormErrorsErrores de validación del formulario App.tsx,
+EmployeeForm
+¿Por qué separar tipos de API y Frontend?
+RAZONES:
+✅  INDEPENDENCIA: El backend puede cambiar sin afectar el frontend
+✅  FLEXIBILIDAD: Puedes tener diferentes estructuras para diferentes usos
+✅  SEGURIDAD: No expones datos internos del backend
+✅  CLARIDAD: Sabes qué datos vienen de la API y cuáles son locales
+⚙  3. Hooks (La Lógica de Negocio)
+¿Qué son?
+Los hooks son funciones que encapsulan lógica reutilizable y manejan el estado de tu aplicación.
+En React, un hook personalizado es como un "controlador" que centraliza la lógica.
+¿Qué hace  useEmployees ?
+useEmployees (Hook)📦  ESTADO 📋  OPERACIONES
+employees: Employee[]loading: booleanerror: string | nullfetchAll() - Obtiene todoscreate() - Crea unoupdate() - Actualiza unoremove() - Elimina unoincreaseSalary() - Aumenta salario
+--- Pag 6 ---
+Flujo de  fetchAll 
+EmployeeAPIuseEmployeesUsuario
+EmployeeAPIuseEmployeesUsuario
+fetchAll()
+setLoading(true)
+getAll()
+Datos de empleados
+setEmployees(datos)
+setLoading(false)
+Datos disponibles
+--- Pag 7 ---
+Flujo de  create 
+EstadoEmployeeAPIuseEmployeesUsuario
+EstadoEmployeeAPIuseEmployeesUsuario
+create(data)
+setLoading(true)
+create(data)
+Nuevo empleado
+agregar al array
+setLoading(false)
+Empleado creado
+¿Por qué usar un hook personalizado?
+BENEFICIOS:
+✅  REUTILIZACIÓN: La misma lógica se puede usar en varios componentes
+✅  SEPARACIÓN: La lógica de negocio no está mezclada con la UI
+✅  PRUEBAS: El hook se puede probar de forma aislada
+✅  MANTENIMIENTO: Los cambios en la lógica se hacen en un solo lugar
+✅  LEGIBILIDAD: El código de los componentes es más limpio
+--- Pag 8 ---
+📡  4. API (La Capa de Datos)
+¿Qué son?
+La capa API es la puerta de comunicación entre tu frontend y el backend. Se encarga de hacer las
+peticiones HTTP y manejar las respuestas.
+Estructura de la Capa API
+CAPA API
+client.ts
+(Cliente HTTP)
+employee.api.ts
+(Endpoints)
+ client.ts  - El Cliente HTTP
+Elemento Propósito
+baseURL URL base del backend (desde .env)
+headers Cabeceras comunes (Content-Type)
+timeout Tiempo máximo de espera (10s)
+interceptors Logging de peticiones/respuestas
+ employee.api.ts  - Los Endpoints
+Método Endpoint Propósito
+getAll() GET /api/employees Obtener todos los empleados
+--- Pag 9 ---
+Método Endpoint Propósito
+getById() GET /api/employees/:id Obtener un empleado
+create() POST /api/employees Crear un empleado
+update() PUT /api/employees/:id Actualizar un empleado
+delete() DELETE /api/employees/:id Eliminar un empleado
+increaseSalary() PATCH /api/employees/:id/salaryAumentar salario
+getStats() GET /api/employees/stats Obtener estadísticas
+¿Por qué separar API en dos archivos?
+RAZONES:
+✅  REUTILIZACIÓN: client.ts se puede usar para otras entidades
+✅  ORGANIZACIÓN: Cada entidad tiene su propio archivo de endpoints
+✅  MANTENIMIENTO: Los cambios en Axios se hacen en un solo lugar
+✅  CONFIGURACIÓN: Interceptores, headers y timeout centralizados
+--- Pag 10 ---
+🔄  5. Flujo Completo de Datos
+Crear un Empleado
+BackendEmployeeAPIuseEmployeesApp.tsxEmployeeFormUsuario
+BackendEmployeeAPIuseEmployeesApp.tsxEmployeeFormUsuario
+Escribe datos
+Click en Guardar
+onSubmit(e)
+validateForm()
+create(data)
+setLoading(true)
+create(data)
+POST /api/employees
+201 Created (empleado)
+Empleado creado
+setEmployees([...prev, new])
+setLoading(false)
+Empleado creado
+handleCloseModal()
+✅  Empleado creado
+--- Pag 11 ---
+Listar Empleados
+BackendEmployeeAPIuseEmployeesApp.tsxUsuario
+BackendEmployeeAPIuseEmployeesApp.tsxUsuario
+Abre la página
+useEffect() →  fetchAll()
+setLoading(true)
+getAll()
+GET /api/employees
+200 OK (lista)
+Datos de empleados
+setEmployees(data)
+setLoading(false)
+Datos disponibles
+✅  Tabla de empleados
+📊  6. Resumen de Responsabilidades
+Capa Archivo Responsabilidad ¿Qué NO hace?
+UI App.tsx Orquestar componentes, manejar
+estado del formulario
+No llama directamente a
+la API
+UI EmployeeList Mostrar tabla de empleados No modifica datos, solo
+recibe props
+UI EmployeeForm Mostrar y capturar datos del
+formulario
+No sabe qué hacer con
+los datos
+UI EmployeeModal Mostrar/ocultar ventana modalNo contiene lógica de
+negocio
+--- Pag 12 ---
+Capa Archivo Responsabilidad ¿Qué NO hace?
+Lógica useEmployees Manejar estado y operaciones
+CRUD
+No sabe cómo se
+muestran los datos
+API employee.api.ts Definir endpoints y hacer peticionesNo contiene lógica de
+negocio
+API client.ts Configurar Axios (baseURL,
+headers, interceptors)
+No sabe qué endpoints
+existen
+Tipos employee.types.tsDefinir interfaces de datos No contiene lógica ni
+valores
+✅  7. Checklist de Verificación
+ENTENDISTE...
+□ ¿Qué es un componente y por qué separarlos?
+□ ¿Cuántos componentes tienes y qué hace cada uno?
+□ ¿Qué son los tipos y por qué separarlos en API y Frontend?
+□ ¿Qué hace el hook useEmployees y por qué es importante?
+□ ¿Cómo se comunica el frontend con el backend?
+□ ¿Cuál es el flujo de datos desde el usuario hasta el backend?
+□ ¿Por qué está organizada la estructura de esta manera?
+--- Pag 13 ---
+🎯  8. Analogía Final
+IMAGINA QUE ESTE PROYECTO ES UN RESTAURANTE:
+🧑 🍳  EMPLOYEELIST = La carta del menú
+    → Muestra lo que hay disponible (los empleados)
+📋  EMPLOYEEFORM = La comanda (pedido)
+    → Captura lo que el cliente quiere (nuevo empleado)
+🚪  EMPLOYEEMODAL = La puerta de la cocina
+    → Abre/cierra el acceso al área de preparación
+👨‍💼  APP = El gerente del restaurante
+    → Coordina todo: recibe pedidos, los envía a cocina, sirve la mesa
+👨‍🍳  USEEMPLOYEES = El chef
+    → Prepara los platos (procesa los datos)
+📦  EMPLOYEE.API = El proveedor de ingredientes
+    → Trae lo que necesita el chef desde el almacén (backend)
+📋  EMPLOYEE.TYPES = La receta
+    → Define cómo debe ser cada plato (la estructura de los datos)
