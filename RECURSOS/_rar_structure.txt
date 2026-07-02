@@ -1,0 +1,83 @@
+===== ESTRUCTURA DEL RAR: concesionaria-fe.rar =====
+
+Total archivos: 34
+
+    1. concesionaria-fe/ (0 bytes)
+    2. concesionaria-fe/.env (36 bytes)
+    3. concesionaria-fe/.gitignore (253 bytes)
+    4. concesionaria-fe/README.md (2,425 bytes)
+    5. concesionaria-fe/eslint.config.js (591 bytes)
+    6. concesionaria-fe/index.html (365 bytes)
+    7. concesionaria-fe/package.json (1,074 bytes)
+    8. concesionaria-fe/public/ (0 bytes)
+    9. concesionaria-fe/public/favicon.svg (9,522 bytes)
+   10. concesionaria-fe/public/icons.svg (5,031 bytes)
+   11. concesionaria-fe/src/ (0 bytes)
+   12. concesionaria-fe/src/App.css (2,891 bytes)
+   13. concesionaria-fe/src/App.tsx (7,945 bytes)
+   14. concesionaria-fe/src/api/ (0 bytes)
+   15. concesionaria-fe/src/api/client.ts (886 bytes)
+   16. concesionaria-fe/src/api/employee.api.ts (2,342 bytes)
+   17. concesionaria-fe/src/assets/ (0 bytes)
+   18. concesionaria-fe/src/assets/hero.png (13,057 bytes)
+   19. concesionaria-fe/src/assets/react.svg (4,126 bytes)
+   20. concesionaria-fe/src/assets/vite.svg (8,709 bytes)
+   21. concesionaria-fe/src/components/ (0 bytes)
+   22. concesionaria-fe/src/components/EmployeeForm.tsx (5,326 bytes)
+   23. concesionaria-fe/src/components/EmployeeList.tsx (5,208 bytes)
+   24. concesionaria-fe/src/components/EmployeeModal.tsx (2,077 bytes)
+   25. concesionaria-fe/src/hooks/ (0 bytes)
+   26. concesionaria-fe/src/hooks/useEmployees.ts (5,324 bytes)
+   27. concesionaria-fe/src/index.css (2,193 bytes)
+   28. concesionaria-fe/src/main.tsx (230 bytes)
+   29. concesionaria-fe/src/types/ (0 bytes)
+   30. concesionaria-fe/src/types/employee.types.ts (1,431 bytes)
+   31. concesionaria-fe/tsconfig.app.json (543 bytes)
+   32. concesionaria-fe/tsconfig.json (119 bytes)
+   33. concesionaria-fe/tsconfig.node.json (549 bytes)
+   34. concesionaria-fe/vite.config.ts (233 bytes)
+
+=== ARCHIVOS POR CARPETA ===
+
+concesionaria-fe/
+    
+    .env
+    .gitignore
+    README.md
+    eslint.config.js
+    index.html
+    package.json
+    tsconfig.app.json
+    tsconfig.json
+    tsconfig.node.json
+    vite.config.ts
+concesionaria-fe/public/
+    
+    favicon.svg
+    icons.svg
+concesionaria-fe/src/
+    
+    App.css
+    App.tsx
+    index.css
+    main.tsx
+concesionaria-fe/src/api/
+    
+    client.ts
+    employee.api.ts
+concesionaria-fe/src/assets/
+    
+    hero.png
+    react.svg
+    vite.svg
+concesionaria-fe/src/components/
+    
+    EmployeeForm.tsx
+    EmployeeList.tsx
+    EmployeeModal.tsx
+concesionaria-fe/src/hooks/
+    
+    useEmployees.ts
+concesionaria-fe/src/types/
+    
+    employee.types.ts
