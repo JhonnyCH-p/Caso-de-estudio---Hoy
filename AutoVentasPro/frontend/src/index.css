@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  background: #080e1a;
+  color: #c8ced6;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

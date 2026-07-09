@@ -1,145 +1,87 @@
-// src/infrastructure/controllers/vehiculo.controller.ts
-import { Request, Response } from 'express';
-import { VehiculoService } from '../../application/services/VehiculoService.js';
-import { CreateVehiculoRequest, UpdateVehiculoRequest } from '../../application/dtos/requests/VehiculoRequest.js';
+import type { Request, Response } from 'express';
+import type { VehiculoService } from '../../application/services/VehiculoService.js';
 
 export class VehiculoController {
-  constructor(private readonly vehiculoService: VehiculoService) {}
+    constructor(private service: VehiculoService) {}
 
-  // POST /api/vehiculos
-  create = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const request: CreateVehiculoRequest = req.body;
-      const vehiculo = await this.vehiculoService.create(request);
-      res.status(201).json({
-        message: 'Vehículo creado exitosamente',
-        data: vehiculo,
-      });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
+    crear = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const result = await this.service.crearVehiculo(req.body);
+            res.status(201).json({ data: result });
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    };
 
-  // GET /api/vehiculos
-  getAll = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const vehiculos = await this.vehiculoService.getAll();
-      res.status(200).json({
-        count: vehiculos.length,
-        data: vehiculos,
-      });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
+    listar = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const disponibles = req.query.disponibles === 'true';
+            const data = await this.service.listarVehiculos(disponibles);
+            res.status(200).json({ count: data.length, data });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    };
 
-  // GET /api/vehiculos/disponibles
-  getDisponibles = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const vehiculos = await this.vehiculoService.getDisponibles();
-      res.status(200).json({
-        count: vehiculos.length,
-        data: vehiculos,
-      });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
+    obtenerPorId = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { id } = req.params;
+            const data = await this.service.obtenerVehiculoPorId(id);
+            res.status(200).json({ data });
+        } catch (error: any) {
+            const status = error.message.includes('no encontrado') ? 404 : 500;
+            res.status(status).json({ error: error.message });
+        }
+    };
 
-  // GET /api/vehiculos/:id
-  getById = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const id = req.params.id as string;
+    actualizar = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { id } = req.params;
+            if (Object.keys(req.body).length === 0) {
+                res.status(400).json({ error: 'Debe proporcionar al menos un campo para actualizar' });
+                return;
+            }
+            const data = await this.service.actualizarVehiculo(id, req.body);
+            res.status(200).json({ data });
+        } catch (error: any) {
+            const status = error.message.includes('no encontrado') ? 404 : 400;
+            res.status(status).json({ error: error.message });
+        }
+    };
 
-      if (!id) {
-        res.status(400).json({ error: 'ID es requerido' });
-        return;
-      }
+    eliminar = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { id } = req.params;
+            await this.service.eliminarVehiculo(id);
+            res.status(200).json({ message: 'Vehículo eliminado exitosamente' });
+        } catch (error: any) {
+            const status = error.message.includes('no encontrado') ? 404 : 500;
+            res.status(status).json({ error: error.message });
+        }
+    };
 
-      const vehiculo = await this.vehiculoService.getById(id);
-      res.status(200).json({ data: vehiculo });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
+    ajustarStock = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { id } = req.params;
+            const { cantidad } = req.body;
+            if (cantidad === undefined) {
+                res.status(400).json({ error: 'Debe proporcionar una cantidad' });
+                return;
+            }
+            const data = await this.service.ajustarStock(id, cantidad);
+            res.status(200).json({ data });
+        } catch (error: any) {
+            const status = error.message.includes('no encontrado') ? 404 : 400;
+            res.status(status).json({ error: error.message });
+        }
+    };
 
-  // PUT /api/vehiculos/:id
-  update = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const id = req.params.id as string;
-
-      if (!id) {
-        res.status(400).json({ error: 'ID es requerido' });
-        return;
-      }
-
-      const request: UpdateVehiculoRequest = req.body;
-      if (Object.keys(request).length === 0) {
-        res.status(400).json({ error: 'Debe proporcionar al menos un campo para actualizar' });
-        return;
-      }
-
-      const vehiculo = await this.vehiculoService.update(id, request);
-      res.status(200).json({
-        message: 'Vehículo actualizado exitosamente',
-        data: vehiculo,
-      });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
-
-  // DELETE /api/vehiculos/:id
-  delete = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const id = req.params.id as string;
-
-      if (!id) {
-        res.status(400).json({ error: 'ID es requerido' });
-        return;
-      }
-
-      await this.vehiculoService.delete(id);
-      res.status(200).json({ message: 'Vehículo eliminado exitosamente' });
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
-
-  // GET /api/vehiculos/marca/:marca (OPCIONAL - si tienes este endpoint)
-  getByMarca = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const marca = req.params.marca as string;
-      if (!marca) {
-        res.status(400).json({ error: 'Marca es requerida' });
-        return;
-      }
-    } catch (error: any) {
-      this.handleError(error, res);
-    }
-  };
-
-  // Manejo errores
-  private handleError(error: any, res: Response): void {
-    console.error('Error en VehiculoController:', error.message);
-
-    // Errores de validación
-    if (error.message.includes('marca') ||
-        error.message.includes('modelo') ||
-        error.message.includes('año') ||
-        error.message.includes('precio') ||
-        error.message.includes('stock') ||
-        error.message.includes('tipo')) {
-      res.status(400).json({ error: error.message });
-      return;
-    }
-
-    // no encontrado
-    if (error.message.includes('no encontrado')) {
-      res.status(404).json({ error: error.message });
-      return;
-    }
-
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+    estadisticas = async (_req: Request, res: Response): Promise<void> => {
+        try {
+            const data = await this.service.obtenerEstadisticas();
+            res.status(200).json({ data });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    };
 }

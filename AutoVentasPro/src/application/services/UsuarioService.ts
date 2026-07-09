@@ -1,16 +1,8 @@
+import bcrypt from 'bcryptjs';
 import type { UsuarioRepository } from '../../domain/repositories/usuario.repository.js';
 import { Usuario, type RolUsuario } from '../../domain/entities/usuario.entity.js';
 import type { CrearUsuarioRequest, ActualizarUsuarioRequest } from '../dtos/requests/UsuarioRequest.js';
 import type { UsuarioResponse, LoginResponse, ComisionUsuarioResponse } from '../dtos/responses/UsuarioResponse.js';
-
-function hashPassword(password: string): string {
-  let hash = '';
-  for (let i = 0; i < password.length; i++) {
-    const code = password.charCodeAt(i);
-    hash += (code * 7 + 13).toString(16).slice(-2);
-  }
-  return hash;
-}
 
 export class UsuarioService {
   constructor(private repository: UsuarioRepository) {}
@@ -23,7 +15,7 @@ export class UsuarioService {
       throw new Error(`El usuario '${request.usuario}' ya existe`);
     }
 
-    const passwordHash = hashPassword(request.password);
+    const passwordHash = bcrypt.hashSync(request.password, 10);
     const usuario = Usuario.crear(
       request.usuario,
       passwordHash,
@@ -75,7 +67,7 @@ export class UsuarioService {
     if (request.nivelPermiso !== undefined) data.nivelPermiso = request.nivelPermiso;
     if (request.activo !== undefined) data.activo = request.activo;
     if (request.password !== undefined) {
-      data.passwordHash = hashPassword(request.password);
+      data.passwordHash = bcrypt.hashSync(request.password, 10);
     }
 
     const actualizado = Usuario.desdeDatos(data);
@@ -92,8 +84,7 @@ export class UsuarioService {
     const usuario = await this.repository.findByUsuario(request.usuario);
     if (!usuario) throw new Error('Credenciales inválidas');
 
-    const passwordHash = hashPassword(request.password);
-    if (!usuario.verificarPassword(passwordHash)) {
+    if (!bcrypt.compareSync(request.password, usuario.getPasswordHash())) {
       throw new Error('Credenciales inválidas');
     }
 

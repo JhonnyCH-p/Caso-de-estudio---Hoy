@@ -12,9 +12,15 @@ build/
 .env
 .env.local
 
+# Base de datos
+*.db
+*.db-journal
+prisma/migrations/
+
 # VS Code
 .vscode/
 
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+/generated/prisma

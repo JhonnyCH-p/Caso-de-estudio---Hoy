@@ -1,66 +1,74 @@
-// src/test-vehiculo-repository.ts
-import { VehiculoInMemoryRepository } from '../src/infrastructure/repositories/VehiculoRepositoryImpl.js';
+import { VehiculoSupabaseRepository } from '../src/infrastructure/repositories/vehiculo.supabase.repository.js';
 import { Vehiculo } from '../src/domain/entities/Vehiculo.js';
 
-(async () => {
-  console.log('🧪 PROBANDO REPOSITORIO VEHICULO (MEMORIA)');
-  console.log('===========================================\n');
+let pasaron = 0;
+let fallaron = 0;
+let creados: string[] = [];
 
-  const repo = new VehiculoInMemoryRepository();
+function assert(condicion: boolean, desc: string) {
+    if (condicion) { pasaron++; console.log(`   ✅ ${desc}`); }
+    else { fallaron++; console.log(`   ❌ ${desc}`); }
+}
 
-  try {
-    // 1. CREATE
-    console.log('1. CREATE - Guardar vehículos');
-    const v1 = Vehiculo.create('Toyota', 'Corolla', 2024, 25000, 'SEDAN', 5);
-    const v2 = Vehiculo.create('Honda', 'Civic', 2024, 27000, 'SEDAN', 3);
-    await repo.save(v1);
-    await repo.save(v2);
-    console.log(`  Guardados: ${await repo.count()} vehículos\n`);
+console.log('🧪 Test: VehiculoSupabaseRepository\n');
 
-    // 2. READ - findById
-    console.log('2. READ - Buscar por ID');
-    const found = await repo.findById(v1.getId());
-    console.log(`  Encontrado: ${found?.getMarca()} ${found?.getModelo()}\n`);
+async function test() {
+    const repo = new VehiculoSupabaseRepository();
+    const ts = Date.now();
 
-    // 3. READ - findAll
-    console.log('3. READ - Obtener todos');
-    const all = await repo.findAll();
-    console.log(`  Total: ${all.length} vehículos`);
-    all.forEach(v => console.log(`  - ${v.getMarca()} ${v.getModelo()}: $${v.getPrecioBase()}`));
-    console.log('');
+    try {
+        const countInicial = await repo.count();
+        console.log(`   (count inicial: ${countInicial})\n`);
 
-    // 4. READ - findByMarca
-    console.log('4. READ - Buscar por marca (Toyota)');
-    const byMarca = await repo.findByMarca('Toyota');
-    console.log(`  Encontrados: ${byMarca.length}\n`);
+        const v1 = Vehiculo.crear('Toyota', `Corolla_${ts}`, 2024, 25000, 'SEDAN', 5);
+        const v2 = Vehiculo.crear('Honda', `CRV_${ts}`, 2024, 32000, 'SUV', 0);
 
-    // 5. READ - findDisponibles
-    console.log('5. READ - Vehículos disponibles (stock > 0)');
-    const disponibles = await repo.findDisponibles();
-    console.log(`  Disponibles: ${disponibles.length}\n`);
+        await repo.save(v1);
+        creados.push(v1.getId());
+        await repo.save(v2);
+        creados.push(v2.getId());
+        assert((await repo.count()) === countInicial + 2, 'save: 2 vehículos guardados');
 
-    // 6. UPDATE
-    console.log('6. UPDATE - Actualizar precio');
-    v1.actualizar({ precioBase: 26000 });
-    await repo.update(v1);
-    const updated = await repo.findById(v1.getId());
-    console.log(`  Nuevo precio: $${updated?.getPrecioBase()}\n`);
+        const encontrado = await repo.findById(v1.getId());
+        assert(encontrado !== null, 'findById: encontrado');
+        assert(encontrado!.getMarca() === 'Toyota', 'findById: marca correcta');
 
-    // 7. DELETE
-    console.log('7. DELETE - Eliminar vehículo');
-    const deleted = await repo.delete(v2.getId());
-    console.log(`  Eliminado: ${deleted}, Quedan: ${await repo.count()}\n`);
+        const noEncontrado = await repo.findById('no-existe');
+        assert(noEncontrado === null, 'findById: no existente retorna null');
 
-    // 8. READ - findByRangoPrecio (método que no está en la interfaz, pero está en el repo)
-    // Nota: la interfaz no tiene findByRangoPrecio, pero la implementación sí.
-    // Si quieres probarlo, puedes hacer un cast o usar el método directamente.
-    // Por ahora, lo comento porque no está en la interfaz.
-    // console.log('8. READ - Rango de precio ($25000 - $30000)');
-    // const enRango = await repo.findByRangoPrecio(25000, 30000);
-    // console.log(`  En rango: ${enRango.length} vehículos\n`);
+        v1.setPrecioBase(26000);
+        await repo.update(v1);
+        const actualizado = await repo.findById(v1.getId());
+        assert(actualizado!.getPrecioBase() === 26000, 'update: precio actualizado');
 
-    console.log('✅ ¡TODAS LAS PRUEBAS PASARON!');
-  } catch (error: any) {
-    console.error('❌ ERROR:', error.message);
-  }
-})();
+        let error = false;
+        try {
+            await repo.update(Vehiculo.crear('Test', 'Test', 2024, 100, 'SEDAN', 1));
+        } catch { error = true; }
+        assert(error, 'update: error si no existe');
+
+        const todos = await repo.findAll();
+        assert(todos.length >= 2, 'findAll: al menos 2 vehículos');
+
+        const disponibles = await repo.findDisponibles();
+        assert(disponibles.length >= 1, 'findDisponibles: al menos 1 disponible');
+        const disponiblesConStock = disponibles.filter(d => d.getStock() > 0);
+        assert(disponiblesConStock.length >= 1, 'findDisponibles: algunos con stock > 0');
+
+        const eliminado = await repo.delete(v2.getId());
+        creados = creados.filter(id => id !== v2.getId());
+        assert(eliminado === true, 'delete: eliminado');
+        assert((await repo.count()) === countInicial + 1, 'delete: count es countInicial + 1');
+
+        const falso = await repo.delete('no-existe');
+        assert(falso === false, 'delete: falso si no existe');
+
+        console.log(`\n📊 Resultados: ${pasaron} pasaron, ${fallaron} fallaron, ${pasaron + fallaron} total`);
+    } finally {
+        for (const id of creados) {
+            try { await repo.delete(id); } catch { /* ignore */ }
+        }
+    }
+}
+
+test().catch(e => { console.error('❌ Error:', e); process.exit(1); });

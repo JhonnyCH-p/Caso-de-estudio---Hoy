@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Empleado {
+  id          String   @id @default(uuid())
+  cedula      String
+  nombres     String
+  salario     Float
+  departamento String
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Usuario {
+  id               String    @id @default(uuid())
+  usuario          String    @unique
+  passwordHash     String
+  rol              String
+  activo           Boolean   @default(true)
+  ultimoAcceso     DateTime?
+  especialidad     String?
+  experienciaAnios Int?
+  metaMensual      Float?
+  areaResponsable  String?
+  bonoGestion      Float?
+  nivelPermiso     String?
+  fechaCreacion    DateTime  @default(now())
+}
+
+model Vehiculo {
+  id               String   @id @default(uuid())
+  marca            String
+  modelo           String
+  anio             Int
+  precioBase       Float
+  tipo             String
+  stock            Int      @default(0)
+  especificaciones String?
+  imagen           String?
+  activo           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model PlanFinanciamiento {
+  id               String   @id @default(uuid())
+  nombre           String
+  entradaMinima    Float
+  tasaInteresAnual Float
+  plazosDisponibles String
+  comision         Float    @default(0)
+  activo           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Cotizacion {
+  id                String   @id @default(uuid())
+  vehiculoId        String
+  planId            String
+  clienteNombre     String
+  clienteEmail      String
+  clienteTelefono   String
+  clienteCedula     String?
+  clienteCiudad     String?
+  precioVehiculo    Float
+  entrada           Float
+  montoFinanciado   Float
+  plazoMeses        Int
+  tasaInteresAnual  Float
+  cuotaMensual      Float
+  tablaAmortizacion String
+  estado            String   @default("PENDIENTE")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Venta {
+  id           String   @id @default(uuid())
+  cotizacionId String   @unique
+  asesorId     String
+  valorTotal   Float
+  estado       String   @default("PENDIENTE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

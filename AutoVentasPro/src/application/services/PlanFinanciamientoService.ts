@@ -1,90 +1,89 @@
+import type { PlanFinanciamientoRepository } from '../../domain/repositories/IPlanFinanciamientoRepository.js';
 import { PlanFinanciamiento } from '../../domain/entities/PlanFinanciamiento.js';
-import { IPlanFinanciamientoRepository } from '../../domain/repositories/IPlanFinanciamientoRepository.js';
-import { PlanFinanciamientoRequest } from '../dtos/requests/PlanFinanciamientoRequest.js';
-import { PlanFinanciamientoResponse } from '../dtos/responses/PlanFinanciamientoResponse.js';
-
+import type { CrearPlanFinanciamientoRequest, ActualizarPlanFinanciamientoRequest } from '../dtos/requests/PlanFinanciamientoRequest.js';
+import type { PlanFinanciamientoResponse } from '../dtos/responses/PlanFinanciamientoResponse.js';
 
 export class PlanFinanciamientoService {
-  constructor(private repo: IPlanFinanciamientoRepository) {}
+    constructor(private repository: PlanFinanciamientoRepository) {}
 
-  async crearPlan(request: PlanFinanciamientoRequest): Promise<PlanFinanciamientoResponse> {
-    validatePlanRequest(request);
-    const id = generateId('PLAN');
-    const plan = new PlanFinanciamiento(
-      id,
-      request.nombre,
-      request.entradaMinima,
-      request.tasaInteresAnual,
-      request.plazosDisponibles,
-      request.comision,
-      true,
-      new Date()
-    );
-    await this.repo.save(plan);
-    return this.toResponse(plan);
-  }
+    async crearPlan(request: CrearPlanFinanciamientoRequest): Promise<PlanFinanciamientoResponse> {
+        this.validarCrear(request);
+        const plan = PlanFinanciamiento.crear(
+            request.nombre,
+            request.entradaMinima,
+            request.tasaInteresAnual,
+            request.plazosDisponibles,
+            request.comision,
+        );
+        await this.repository.save(plan);
+        return this.toResponse(plan);
+    }
 
-  async listarPlanes(activos?: boolean): Promise<PlanFinanciamientoResponse[]> {
-    const planes = activos ? await this.repo.findActivos() : await this.repo.findAll();
-    return planes.map(p => this.toResponse(p));
-  }
+    async listarPlanes(activos?: boolean): Promise<PlanFinanciamientoResponse[]> {
+        const planes = activos
+            ? await this.repository.findActivos()
+            : await this.repository.findAll();
+        return planes.map(p => this.toResponse(p));
+    }
 
-  async obtenerPlanPorId(id: string): Promise<PlanFinanciamientoResponse | null> {
-    const plan = await this.repo.findById(id);
-    return plan ? this.toResponse(plan) : null;
-  }
+    async obtenerPlanPorId(id: string): Promise<PlanFinanciamientoResponse> {
+        const plan = await this.repository.findById(id);
+        if (!plan) throw new Error(`Plan con ID ${id} no encontrado`);
+        return this.toResponse(plan);
+    }
 
-  async actualizarPlan(id: string, data: Partial<PlanFinanciamientoRequest>): Promise<PlanFinanciamientoResponse> {
-    const plan = await this.repo.findById(id);
-    if (!plan) throw new Error(`Plan con ID ${id} no encontrado`);
-    if (data.nombre !== undefined) plan.nombre = data.nombre;
-    if (data.entradaMinima !== undefined) plan.entradaMinima = data.entradaMinima;
-    if (data.tasaInteresAnual !== undefined) plan.tasaInteresAnual = data.tasaInteresAnual;
-    if (data.plazosDisponibles !== undefined) plan.plazosDisponibles = data.plazosDisponibles;
-    if (data.comision !== undefined) plan.comision = data.comision;
-    await this.repo.save(plan);
-    return this.toResponse(plan);
-  }
+    async actualizarPlan(id: string, request: ActualizarPlanFinanciamientoRequest): Promise<PlanFinanciamientoResponse> {
+        const plan = await this.repository.findById(id);
+        if (!plan) throw new Error(`Plan con ID ${id} no encontrado`);
 
-  async eliminarPlan(id: string, fisico: boolean = false): Promise<boolean> {
-    if (fisico) return this.repo.delete(id);
-    const plan = await this.repo.findById(id);
-    if (!plan) return false;
-    plan.desactivar();
-    await this.repo.save(plan);
-    return true;
-  }
+        if (request.nombre !== undefined) plan.setNombre(request.nombre);
+        if (request.entradaMinima !== undefined) plan.setEntradaMinima(request.entradaMinima);
+        if (request.tasaInteresAnual !== undefined) plan.setTasaInteresAnual(request.tasaInteresAnual);
+        if (request.plazosDisponibles !== undefined) plan.setPlazosDisponibles(request.plazosDisponibles);
+        if (request.comision !== undefined) plan.setComision(request.comision);
+        if (request.activo !== undefined) {
+            request.activo ? plan.activar() : plan.desactivar();
+        }
 
-  async calcularCuota(idPlan: string, montoFinanciado: number, plazoMeses: number): Promise<number> {
-    const plan = await this.repo.findById(idPlan);
-    if (!plan) throw new Error('Plan no encontrado');
-    return plan.calcularCuota(montoFinanciado, plazoMeses);
-  }
+        await this.repository.update(plan);
+        return this.toResponse(plan);
+    }
 
-  private toResponse(plan: PlanFinanciamiento): PlanFinanciamientoResponse {
-    return {
-      idPlan: plan.idPlan,
-      nombre: plan.nombre,
-      entradaMinima: plan.entradaMinima,
-      tasaInteresAnual: plan.tasaInteresAnual,
-      plazosDisponibles: plan.plazosDisponibles,
-      comision: plan.comision,
-      activo: plan.activo,
-      fechaCreacion: plan.fechaCreacion
-    };
-  }
-}
-export function generateId(prefix: string): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 6);
-  return `${prefix}-${timestamp}-${random}`;
-}
+    async eliminarPlan(id: string, fisico: boolean = false): Promise<boolean> {
+        if (fisico) return this.repository.delete(id);
+        const plan = await this.repository.findById(id);
+        if (!plan) return false;
+        plan.desactivar();
+        await this.repository.update(plan);
+        return true;
+    }
 
-export function validatePlanRequest(data: PlanFinanciamientoRequest): void {
-  if (!data.nombre?.trim()) throw new Error('Nombre obligatorio');
-  if (data.entradaMinima < 0 || data.entradaMinima > 100) throw new Error('Entrada mínima debe ser 0-100');
-  if (data.tasaInteresAnual < 0) throw new Error('Tasa debe ser >= 0');
-  if (!data.plazosDisponibles?.length) throw new Error('Debe haber al menos un plazo');
-  if (data.plazosDisponibles.some(p => p <= 0)) throw new Error('Plazos deben ser positivos');
-  if (data.comision < 0) throw new Error('Comisión debe ser >= 0');
+    async calcularCuota(idPlan: string, montoFinanciado: number, plazoMeses: number): Promise<number> {
+        const plan = await this.repository.findById(idPlan);
+        if (!plan) throw new Error('Plan no encontrado');
+        return plan.calcularCuota(montoFinanciado, plazoMeses);
+    }
+
+    private validarCrear(request: CrearPlanFinanciamientoRequest): void {
+        if (!request.nombre?.trim()) throw new Error('El nombre es obligatorio');
+        if (request.entradaMinima < 0 || request.entradaMinima > 100) throw new Error('La entrada mínima debe ser entre 0 y 100');
+        if (request.tasaInteresAnual < 0) throw new Error('La tasa de interés no puede ser negativa');
+        if (!request.plazosDisponibles?.length) throw new Error('Debe haber al menos un plazo disponible');
+        if (request.plazosDisponibles.some(p => p <= 0)) throw new Error('Los plazos deben ser números positivos');
+        if (request.comision !== undefined && request.comision < 0) throw new Error('La comisión no puede ser negativa');
+    }
+
+    private toResponse(plan: PlanFinanciamiento): PlanFinanciamientoResponse {
+        return {
+            id: plan.getId(),
+            nombre: plan.getNombre(),
+            entradaMinima: plan.getEntradaMinima(),
+            tasaInteresAnual: plan.getTasaInteresAnual(),
+            plazosDisponibles: plan.getPlazosDisponibles(),
+            comision: plan.getComision(),
+            activo: plan.isActivo(),
+            createdAt: plan.getCreatedAt(),
+            updatedAt: plan.getUpdatedAt(),
+        };
+    }
 }
