@@ -1,14 +1,21 @@
 import { Router } from 'express';
 import { PlanFinanciamientoController } from '../controllers/PlanFinanciamientoController.js';
+import { PlanFinanciamientoService } from '../../application/services/PlanFinanciamientoService.js';
+import { PlanFinanciamientoSupabaseRepository } from '../../infrastructure/repositories/plan.supabase.repository.js';
+import { authenticate, authorize } from '../../infrastructure/auth/jwt.middleware.js';
 
-export function createPlanRoutes(controller: PlanFinanciamientoController): Router {
-  const router = Router();
+const repository = new PlanFinanciamientoSupabaseRepository();
+const service = new PlanFinanciamientoService(repository);
+const controller = new PlanFinanciamientoController(service);
 
-  router.post('/', (req, res) => controller.crear(req, res));
-  router.get('/', (req, res) => controller.listar(req, res));
-  router.get('/:id', (req, res) => controller.obtenerPorId(req, res));
-  router.put('/:id', (req, res) => controller.actualizar(req, res));
-  router.delete('/:id', (req, res) => controller.eliminar(req, res));
+const router = Router();
 
-  return router;
-}
+router.get('/', controller.listar);
+router.get('/:id', controller.obtenerPorId);
+router.post('/:id/calcular-cuota', controller.calcularCuota);
+
+router.post('/', authenticate, authorize('administrador', 'jefe_ventas'), controller.crear);
+router.put('/:id', authenticate, authorize('administrador', 'jefe_ventas'), controller.actualizar);
+router.delete('/:id', authenticate, authorize('administrador'), controller.eliminar);
+
+export { router as PlanRoutes };

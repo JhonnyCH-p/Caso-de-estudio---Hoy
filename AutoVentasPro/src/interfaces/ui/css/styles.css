@@ -397,8 +397,230 @@ body {
     width: 100%;
 }
 
+/* ==========================================================================
+   6. FINANCIAMIENTO, PROCESO Y TESTIMONIOS
+   ========================================================================== */
+
+/* Subtítulo general para las secciones */
+.section-subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 1rem;
+    margin-top: -24px;
+    margin-bottom: 48px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- 1. BENEFICIOS --- */
+.benefits-section {
+    background-color: #ffffff;
+    padding: 60px 40px;
+}
+
+.benefits-section h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 1.8rem;
+    color: #0f172a;
+}
+
+.benefits-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefit-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px 24px;
+    width: 260px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+}
+
+.benefit-icon {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px; /* Alinea la altura del contenedor del icono */
+}
+
+/* Control visual para las imágenes de los planes */
+.benefit-img {
+    width: auto;
+    height: 48px; /* Tamaño ideal y uniforme para iconografía */
+    object-fit: contain;
+}
+
+.benefit-card h3 {
+    font-size: 1.15rem;
+    color: #0f172a;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.benefit-card p {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* --- 2. PROCESO DE COMPRA --- */
+.process-section {
+    background-color: #f1f5f9; /* Color alternado para romper monotonía */
+    padding: 60px 40px;
+}
+
+.process-section h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 1.8rem;
+    color: #0f172a;
+}
+
+.process-timeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.process-step {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px 24px;
+    width: 260px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2563eb; /* Azul corporativo */
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.process-step h3 {
+    font-size: 1.15rem;
+    color: #0f172a;
+    margin-top: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.process-step p {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* --- 3. TESTIMONIOS --- */
+.testimonials-section {
+    background-color: #ffffff;
+    padding: 60px 40px;
+}
+
+.testimonials-section h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 1.8rem;
+    color: #0f172a;
+}
+
+.testimonials-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.testimonial-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 28px;
+    width: 350px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.testimonial-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.testimonial-avatar {
+    font-size: 2rem;
+    background-color: #f1f5f9;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.testimonial-header h4 {
+    color: #0f172a;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.testimonial-role {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.testimonial-text {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.testimonial-stars {
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
 /* =================
-   6. PIE DE PÁGINA 
+   7. PIE DE PÁGINA 
    =================*/
 .main-footer {
     background-color: #1e293b; 

@@ -1,16 +1,22 @@
-// src/infrastructure/routes/vehiculo.routes.ts
 import { Router } from 'express';
 import { VehiculoController } from '../controllers/VehiculoController.js';
+import { VehiculoService } from '../../application/services/VehiculoService.js';
+import { VehiculoSupabaseRepository } from '../../infrastructure/repositories/vehiculo.supabase.repository.js';
+import { authenticate, authorize } from '../../infrastructure/auth/jwt.middleware.js';
 
-export const createVehiculoRoutes = (controller: VehiculoController): Router => {
-  const router = Router();
+const repository = new VehiculoSupabaseRepository();
+const service = new VehiculoService(repository);
+const controller = new VehiculoController(service);
 
-  router.post('/', controller.create);
-  router.get('/', controller.getAll);
-  router.get('/disponibles', controller.getDisponibles);
-  router.get('/:id', controller.getById);
-  router.put('/:id', controller.update);
-  router.delete('/:id', controller.delete);
+const router = Router();
 
-  return router;
-};
+router.get('/', controller.listar);
+router.get('/stats', controller.estadisticas);
+router.get('/:id', controller.obtenerPorId);
+
+router.post('/', authenticate, authorize('administrador', 'jefe_ventas'), controller.crear);
+router.put('/:id', authenticate, authorize('administrador', 'jefe_ventas'), controller.actualizar);
+router.delete('/:id', authenticate, authorize('administrador'), controller.eliminar);
+router.patch('/:id/stock', authenticate, authorize('administrador', 'jefe_ventas'), controller.ajustarStock);
+
+export { router as VehiculoRoutes };

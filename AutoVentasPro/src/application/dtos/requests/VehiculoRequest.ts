@@ -1,19 +1,22 @@
-export interface CreateVehiculoRequest {
-  marca: string;
-  modelo: string;
-  anio: number;
-  precioBase: number;
-  tipo: 'SEDAN' | 'SUV' | 'HATCHBACK' | 'PICKUP' | 'DEPORTIVO';
-  stock: number;
-  especificaciones?: { motor?: string; transmision?: string; color?: string; combustible?: string };
+export interface CrearVehiculoRequest {
+    marca: string;
+    modelo: string;
+    anio: number;
+    precioBase: number;
+    tipo: string;
+    stock?: number;
+    especificaciones?: string;
+    imagen?: string;
 }
 
-export interface UpdateVehiculoRequest {
-  marca?: string;
-  modelo?: string;
-  anio?: number;
-  precioBase?: number;
-  tipo?: 'SEDAN' | 'SUV' | 'HATCHBACK' | 'PICKUP' | 'DEPORTIVO';
-  stock?: number;
-  especificaciones?: { motor?: string; transmision?: string; color?: string; combustible?: string };
+export interface ActualizarVehiculoRequest {
+    marca?: string;
+    modelo?: string;
+    anio?: number;
+    precioBase?: number;
+    tipo?: string;
+    stock?: number;
+    especificaciones?: string;
+    imagen?: string | null;
+    activo?: boolean;
 }
